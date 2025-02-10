@@ -1,0 +1,102 @@
+<html>
+<head>
+
+  <title> Green screen </title>
+<style>
+h1 {
+  color: gray;
+}
+
+canvas {
+  height: 200px;
+  border: 1px solid gray;
+  background-color: white;
+}
+
+input {
+  font-size: 20px;
+}
+
+div {
+  font-size: 22px;
+  font-style: Arial;
+}
+
+body {
+  background-color: lightblue;
+}
+</style>
+<script src = "https://www.dukelearntoprogram.com//course1/common/js/image/SimpleImage.js">
+</script>
+</head>
+<body>
+
+<h1> Green screen! </h1>
+<canvas id="cnv1"> </canvas>
+<canvas id="cnv2"> </canvas>
+<br>
+<div> Передній план <input type="file" multiple="false" id="file1" accept="image/*" onchange="uploadFg()"> </div>
+<div> Фонове зображення <input type="file" multiple="false" id="file2" accept="image/*" onchange="uploadBg()"> </div>
+<input type="button" value ="об'єднати" id="button1" onclick="greenScreen()">
+<input type="button" value ="очистити полотна" id="button2" onclick="clearCanvas()">
+
+<script>
+var fgImage = null;
+var bgImage = null;
+var canva;
+
+function uploadFg() {
+  canva = document.getElementById("cnv1");
+  var fileinput = document.getElementById("file1");
+  fgImage = new SimpleImage(fileinput);
+  fgImage.drawTo(canva);
+}
+
+function uploadBg() {
+  canva = document.getElementById("cnv2");
+  var fileinput = document.getElementById("file2");
+  bgImage = new SimpleImage(fileinput);
+  bgImage.drawTo(canva);
+}
+
+function clearCanvas() {
+  var canva1 = document.getElementById("cnv1");
+  var canva2 = document.getElementById("cnv2");
+  var context1 = canva1.getContext("2d");
+  var context2 = canva2.getContext("2d");
+  context1.clearRect(0, 0, canva1.width, canva1.height);
+  context2.clearRect(0, 0, canva2.width, canva2.height);
+}
+
+function greenScreen() {
+      if (fgImage==null || ! fgImage.complete()) {
+         alert ("foreground not loaded");
+         return;
+      }
+      if (bgImage==null || ! bgImage.complete()) {
+         alert ("background not loaded");
+         return;
+      }
+
+canva = document.getElementById("cnv1");
+var output = new SimpleImage(fgImage.getWidth(), fgImage.getHeight());
+ for (var pixel of fgImage.values()) {
+   var green = pixel.getGreen();
+   var red = pixel.getRed();
+   var blue = pixel.getBlue();
+   var x = pixel.getX();
+   var y = pixel.getY();
+   if (green > red+blue) {
+     var bgPixel = bgImage.getPixel(x,y);
+     output.setPixel(x, y, bgPixel);
+   }
+   else {
+     output.setPixel(x, y, pixel);
+   }
+ }
+ output.drawTo(canva);
+}
+</script>
+
+</body>
+</html>
